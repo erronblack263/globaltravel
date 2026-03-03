@@ -1,0 +1,19 @@
+# Rate Limiting Test Commands
+
+## Test 1: First Login Attempt
+curl -X POST -H "Content-Type: application/json" -d "{\"username\": \"string\", \"password\": \"wrongpassword\"}" http://127.0.0.1:8000/api/v1/auth/login
+
+## Test 2: Second Login Attempt  
+curl -X POST -H "Content-Type: application/json" -d "{\"username\": \"string\", \"password\": \"wrongpassword\"}" http://127.0.0.1:8000/api/v1/auth/login
+
+## Test 3: Third Login Attempt
+curl -X POST -H "Content-Type: application/json" -d "{\"username\": \"string\", \"password\": \"wrongpassword\"}" http://127.0.0.1:8000/api/v1/auth/login
+
+## Test 4: Fourth Login Attempt (Should Trigger Rate Limiting)
+curl -X POST -H "Content-Type: application/json" -d "{\"username\": \"string\", \"password\": \"wrongpassword\"}" http://127.0.0.1:8000/api/v1/auth/login
+
+## Test Rate Limiting Simulation
+curl -X POST -H "Content-Type: application/json" http://127.0.0.1:8000/api/v1/test/test-login-rate-limiting
+
+## Test Basic Endpoint
+curl http://127.0.0.1:8000/api/v1/test/basic-test

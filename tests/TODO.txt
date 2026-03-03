@@ -1,0 +1,45 @@
+# TODO LIST - Global Travel v2
+
+## High Priority Tasks
+
+### 🔒 Fix Rate Limiting for Login Endpoint
+- **Status:** Pending
+- **Description:** Account lockout not working despite security functions being implemented correctly
+- **Issue:** Login endpoint returns 401 instead of 429 when account is locked
+- **Details:**
+  - Security functions work correctly (3 failed attempts = 30-minute lockout)
+  - `record_failed_login()` and `is_account_locked()` functions work
+  - Login endpoint not properly checking lockout status
+  - Debug messages show account is locked but endpoint still returns 401
+- **Files to check:**
+  - `api/controllers/auth_controller.py` - login endpoint logic
+  - `core/security.py` - rate limiting functions
+- **Expected behavior:**
+  - 3 failed attempts should trigger 429 Too Many Requests
+  - Should show "Account locked due to too many failed attempts. Try again in X minutes."
+
+---
+
+## Medium Priority Tasks
+
+### [Add new tasks here as needed]
+
+---
+
+## Low Priority Tasks
+
+### [Add new tasks here as needed]
+
+---
+
+## Completed Tasks
+
+### [Move completed tasks here]
+
+---
+
+## Notes
+- Rate limiting security functions are implemented and working correctly
+- Issue is with login endpoint logic not checking lockout status properly
+- Debug logging shows account gets locked but endpoint ignores it
+- Need to fix order of operations in login endpoint
