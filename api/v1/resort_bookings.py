@@ -76,12 +76,9 @@ async def create_resort_booking(
 @router.get("/", response_model=List[ResortBookingResponse])
 async def get_resort_bookings(
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-    status_filter: Optional[BookingStatus] = Query(None, description="Filter by booking status"),
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return")
+    db: AsyncSession = Depends(get_db)
 ) -> List[Booking]:
-    """Get current user's resort bookings."""
+    """Get all resort bookings for current user."""
     
     try:
         query = select(Booking).where(
@@ -90,12 +87,7 @@ async def get_resort_bookings(
                 Booking.resort_id.is_not(None),
                 Booking.destination_id.is_(None)  # Only resort bookings (no destination)
             )
-        )
-        
-        if status_filter:
-            query = query.where(Booking.status == status_filter)
-        
-        query = query.offset(skip).limit(limit).order_by(Booking.created_at.desc())
+        ).order_by(Booking.created_at.desc())
         
         result = await db.execute(query)
         bookings = result.scalars().all()

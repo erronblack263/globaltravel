@@ -69,34 +69,32 @@ async def create_destination_booking(
 @router.get("/", response_model=List[DestinationBookingResponse])
 async def get_destination_bookings(
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
-    status_filter: Optional[BookingStatus] = Query(None, description="Filter by booking status"),
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(100, ge=1, le=1000, description="Maximum number of records to return")
+    db: AsyncSession = Depends(get_db)
 ) -> List[Booking]:
-    """Get current user's destination bookings."""
+    """Get all destination bookings for current user."""
     
-    query = select(Booking).where(
-        and_(
-            Booking.user_id == current_user.id,
-            Booking.destination_id.is_not(None),
-            Booking.resort_id.is_(None)  # Only destination bookings (no resort)
+    try:
+        query = select(Booking).where(
+            and_(
+                Booking.user_id == current_user.id,
+                Booking.destination_id.is_not(None),
+                Booking.resort_id.is_(None)  # Only destination bookings (no resort)
+            )
+        ).order_by(Booking.created_at.desc())
+        
+        result = await db.execute(query)
+        bookings = result.scalars().all()
+        
+        # Convert UUID to string for each booking
+        for booking in bookings:
+            booking.uuid = str(booking.uuid)
+        
+        return bookings
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving destination bookings: {str(e)}"
         )
-    )
-    
-    if status_filter:
-        query = query.where(Booking.status == status_filter)
-    
-    query = query.offset(skip).limit(limit).order_by(Booking.created_at.desc())
-    
-    result = await db.execute(query)
-    bookings = result.scalars().all()
-    
-    # Convert UUID to string for each booking
-    for booking in bookings:
-        booking.uuid = str(booking.uuid)
-    
-    return bookings
 
 
 @router.get("/{booking_id}", response_model=DestinationBookingResponse)
