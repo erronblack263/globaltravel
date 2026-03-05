@@ -74,7 +74,9 @@ async def get_destination_bookings(
     """Get all destination bookings for current user."""
     
     try:
-        query = select(Booking).where(
+        query = select(Booking, Destination).join(
+            Destination, Booking.destination_id == Destination.id
+        ).where(
             and_(
                 Booking.user_id == current_user.id,
                 Booking.destination_id.is_not(None),
@@ -83,11 +85,17 @@ async def get_destination_bookings(
         ).order_by(Booking.created_at.desc())
         
         result = await db.execute(query)
-        bookings = result.scalars().all()
+        bookings_with_destinations = result.all()
         
-        # Convert UUID to string for each booking
-        for booking in bookings:
+        # Convert to response format with destination details
+        bookings = []
+        for booking, destination in bookings_with_destinations:
             booking.uuid = str(booking.uuid)
+            # Add destination details to booking
+            booking.destination_name = destination.name
+            booking.destination_city = destination.city
+            booking.destination_country = destination.country
+            bookings.append(booking)
         
         return bookings
     except Exception as e:

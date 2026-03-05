@@ -42,6 +42,9 @@ class ResortBookingResponse(BaseModel):
     uuid: str
     user_id: int
     resort_id: int
+    resort_name: str
+    resort_city: str
+    resort_country: str
     check_in_date: date
     check_out_date: date
     number_of_guests: int
@@ -93,6 +96,9 @@ class DestinationBookingResponse(BaseModel):
     uuid: str
     user_id: int
     destination_id: int
+    destination_name: str
+    destination_city: str
+    destination_country: str
     check_in_date: date
     check_out_date: Optional[date] = None
     number_of_guests: int
