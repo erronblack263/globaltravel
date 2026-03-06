@@ -28,7 +28,19 @@ class Settings(BaseSettings):
     # PayPal
     PAYPAL_CLIENT_ID: Optional[str] = None
     PAYPAL_CLIENT_SECRET: Optional[str] = None
+    PAYPAL_SANDBOX: bool = True
+    PAYPAL_BASE_URL: str = "https://sandbox.paypal.com"
+    PAYPAL_WEBHOOK_URL: Optional[str] = None
     PAYPAL_ENVIRONMENT: str = "sandbox"
+    
+    # PayNow
+    PAYNOW_MERCHANT_ID: Optional[str] = None
+    PAYNOW_MERCHANT_KEY: Optional[str] = None
+    PAYNOW_INTEGRATION_ID: Optional[str] = None
+    PAYNOW_INTEGRATION_KEY: Optional[str] = None
+    PAYNOW_RETURN_URL: Optional[str] = None
+    PAYNOW_RESULT_URL: Optional[str] = None
+    PAYNOW_AUTH_EMAIL: Optional[str] = None
     
     # Unsplash
     UNSPLASH_ACCESS_KEY: Optional[str] = None

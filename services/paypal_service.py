@@ -11,11 +11,12 @@ class PayPalService:
     def __init__(self):
         self.client_id = settings.PAYPAL_CLIENT_ID
         self.client_secret = settings.PAYPAL_CLIENT_SECRET
-        self.environment = settings.PAYPAL_ENVIRONMENT
+        self.sandbox = getattr(settings, 'PAYPAL_SANDBOX', True)
+        self.base_url = getattr(settings, 'PAYPAL_BASE_URL', 'https://sandbox.paypal.com')
         
     def get_base_url(self) -> str:
         """Get PayPal base URL based on environment."""
-        if self.environment == "sandbox":
+        if self.sandbox:
             return "https://api-m.sandbox.paypal.com"
         else:
             return "https://api-m.paypal.com"
@@ -202,12 +203,12 @@ class PayPalService:
     
     def is_test_environment(self) -> bool:
         """Check if running in test environment."""
-        return self.environment == "sandbox"
+        return self.sandbox
     
     def get_test_info(self) -> Dict[str, Any]:
         """Get PayPal test information."""
         return {
-            "environment": self.environment,
+            "environment": "sandbox" if self.sandbox else "production",
             "base_url": self.get_base_url(),
             "test_mode": self.is_test_environment(),
             "test_accounts": {

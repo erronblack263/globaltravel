@@ -11,6 +11,13 @@ class PaymentMethod(str, Enum):
     DEBIT_CARD = "debit_card"
     PAYPAL = "paypal"
     STRIPE = "stripe"
+    ECOCASH = "ecocash"
+    ONEMONEY = "onemoney"
+    TELECASH = "telecash"
+    ZIPIT = "zipit"
+    MASTERCARD = "mastercard"
+    VISACARD = "visacard"
+    BANK_TRANSFER = "bank_transfer"
 
 
 class PaymentStatus(str, Enum):
@@ -51,6 +58,17 @@ class PaymentResponse(PaymentBase):
     
     class Config:
         from_attributes = True
+
+
+class PayNowPaymentResponse(BaseModel):
+    """PayNow specific payment response."""
+    success: bool
+    reference: str
+    poll_url: str
+    redirect_url: str
+    paynow_reference: str
+    amount: Decimal
+    payment_method: PaymentMethod
 
 
 class StripePaymentIntent(BaseModel):

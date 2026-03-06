@@ -15,13 +15,14 @@ from models.booking import Booking
 from schemas.payment import (
     PaymentCreate, PaymentResponse, PaymentUpdate,
     StripePaymentIntent, PaymentConfirmation,
-    PaymentMethod, PaymentStatus
+    PaymentMethod, PaymentStatus, PayNowPaymentResponse
 )
 from schemas.ecocash import (
     EcocashPaymentRequest, EcocashPaymentResponse,
     EcocashPaymentStatus, EcocashTestInfo
 )
 from services.ecocash_service import ecocash_service
+from services.paynow_service import paynow_service
 
 # PayPal imports
 from schemas.paypal import (

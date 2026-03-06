@@ -19,6 +19,14 @@ class Payment(Base):
     payment_status = Column(String(50), default="pending", index=True)
     stripe_payment_id = Column(String(255))
     stripe_charge_id = Column(String(255))
+    
+    # PayNow fields
+    paynow_reference = Column(String(255))
+    paynow_poll_url = Column(String(500))
+    paynow_redirect_url = Column(String(500))
+    paynow_transaction_id = Column(String(255))
+    
+    # EcoCash specific fields
     ecocash_transaction_id = Column(String(255))
     ecocash_reference = Column(String(255))
     customer_msisdn = Column(String(20))
