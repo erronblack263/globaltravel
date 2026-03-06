@@ -26,6 +26,9 @@ class PayPalService:
         try:
             hostname = "api-m.sandbox.paypal.com" if self.sandbox else "api-m.paypal.com"
             print(f"🔍 Using Token Hostname: {hostname}")
+            print(f"🔍 Client ID: {self.client_id[:10]}...")
+            print(f"🔍 Client Secret: {self.client_secret[:10]}...")
+            
             conn = http.client.HTTPSConnection(hostname)
             
             # Prepare auth data
@@ -39,10 +42,15 @@ class PayPalService:
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
             
+            print(f"🔍 Auth Header: Basic {auth_b64[:20]}...")
+            
             # Request access token
             conn.request("POST", "/v1/oauth2/token", "grant_type=client_credentials", headers)
             response = conn.getresponse()
             data = response.read().decode("utf-8")
+            
+            print(f"🔍 Token Response Status: {response.status}")
+            print(f"🔍 Token Response Data: {data}")
             
             if response.status == 200:
                 return json.loads(data)
