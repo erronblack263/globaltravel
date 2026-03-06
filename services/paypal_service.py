@@ -24,8 +24,8 @@ class PayPalService:
     def get_access_token(self) -> Dict[str, Any]:
         """Get PayPal access token."""
         try:
-            base_url = self.get_base_url()
-            hostname = base_url.replace("https://", "").replace("http://", "")
+            hostname = "api-m.sandbox.paypal.com" if self.sandbox else "api-m.paypal.com"
+            print(f"🔍 Using Token Hostname: {hostname}")
             conn = http.client.HTTPSConnection(hostname)
             
             # Prepare auth data
@@ -69,8 +69,8 @@ class PayPalService:
             access_token = token_response.get("access_token")
             
             # Create order
-            base_url = self.get_base_url()
-            hostname = base_url.replace("https://", "").replace("http://", "")
+            hostname = "api-m.sandbox.paypal.com" if self.sandbox else "api-m.paypal.com"
+            print(f"🔍 Using Hostname: {hostname}")
             conn = http.client.HTTPSConnection(hostname)
             headers = {
                 'Authorization': f'Bearer {access_token}',
@@ -136,8 +136,7 @@ class PayPalService:
             access_token = token_response.get("access_token")
             
             # Capture payment
-            base_url = self.get_base_url()
-            hostname = base_url.replace("https://", "").replace("http://", "")
+            hostname = "api-m.sandbox.paypal.com" if self.sandbox else "api-m.paypal.com"
             conn = http.client.HTTPSConnection(hostname)
             headers = {
                 'Authorization': f'Bearer {access_token}',
@@ -181,8 +180,7 @@ class PayPalService:
             access_token = token_response.get("access_token")
             
             # Get order details
-            base_url = self.get_base_url()
-            hostname = base_url.replace("https://", "").replace("http://", "")
+            hostname = "api-m.sandbox.paypal.com" if self.sandbox else "api-m.paypal.com"
             conn = http.client.HTTPSConnection(hostname)
             headers = {
                 'Authorization': f'Bearer {access_token}',
