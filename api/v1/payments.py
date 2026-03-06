@@ -427,7 +427,7 @@ async def create_paypal_payment(
                 success=False,
                 status_code=response.get("status_code"),
                 response=response.get("response"),
-                message="Failed to create PayPal order"
+                message=f"Failed to create PayPal order: {response.get('error', 'Unknown error')}"
             )
             
     except HTTPException:

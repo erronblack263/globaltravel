@@ -36,8 +36,8 @@ class PayPalPaymentResponse(BaseModel):
     success: bool = Field(..., description="Payment success status")
     order_id: Optional[str] = Field(None, description="PayPal order ID")
     capture_id: Optional[str] = Field(None, description="PayPal capture ID")
-    status_code: int = Field(..., description="HTTP status code")
-    response: Dict[str, Any] = Field(default={}, description="Full response data")
+    status_code: Optional[int] = Field(None, description="HTTP status code")
+    response: Optional[Dict[str, Any]] = Field(None, description="Full response data")
     message: str = Field(..., description="Response message")
     approval_url: Optional[str] = Field(None, description="Approval URL for customer")
 
