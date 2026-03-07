@@ -101,6 +101,7 @@ class PayPalService:
                     "landing_page": "BILLING",
                     "shipping_preference": "NO_SHIPPING",
                     "user_action": "PAY_NOW",
+                    "no_shipping": True,
                     "return_url": "http://localhost:8000/api/v1/payments/paypal/success",
                     "cancel_url": "http://localhost:8000/api/v1/payments/paypal/cancel"
                 }
