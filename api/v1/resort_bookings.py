@@ -23,7 +23,7 @@ async def create_resort_booking(
     booking_data: ResortBookingCreate,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> Booking:
+) -> ResortBookingResponse:
     """Create a new resort booking."""
     
     # Validate resort exists and is available
@@ -67,17 +67,33 @@ async def create_resort_booking(
     await db.commit()
     await db.refresh(booking)
     
-    # Convert UUID to string for response
-    booking.uuid = str(booking.uuid)
+    # Create response with resort details
+    booking_response = ResortBookingResponse(
+        id=booking.id,
+        uuid=str(booking.uuid),
+        user_id=booking.user_id,
+        resort_id=booking.resort_id,
+        resort_name=resort.name,
+        resort_city=resort.city,
+        resort_country=resort.country,
+        check_in_date=booking.check_in_date,
+        check_out_date=booking.check_out_date,
+        number_of_guests=booking.number_of_guests,
+        special_requests=booking.special_requests,
+        total_amount=booking.total_amount,
+        status=booking.status,
+        created_at=booking.created_at,
+        updated_at=booking.updated_at
+    )
     
-    return booking
+    return booking_response
 
 
 @router.get("/", response_model=List[ResortBookingResponse])
 async def get_resort_bookings(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> List[Booking]:
+) -> List[ResortBookingResponse]:
     """Get all resort bookings for current user."""
     
     try:
@@ -98,11 +114,25 @@ async def get_resort_bookings(
         bookings = []
         for booking, resort in bookings_with_resorts:
             booking.uuid = str(booking.uuid)
-            # Add resort details to booking
-            booking.resort_name = resort.name
-            booking.resort_city = resort.city
-            booking.resort_country = resort.country
-            bookings.append(booking)
+            # Create response with resort details
+            booking_response = ResortBookingResponse(
+                id=booking.id,
+                uuid=booking.uuid,
+                user_id=booking.user_id,
+                resort_id=booking.resort_id,
+                resort_name=resort.name,
+                resort_city=resort.city,
+                resort_country=resort.country,
+                check_in_date=booking.check_in_date,
+                check_out_date=booking.check_out_date,
+                number_of_guests=booking.number_of_guests,
+                special_requests=booking.special_requests,
+                total_amount=booking.total_amount,
+                status=booking.status,
+                created_at=booking.created_at,
+                updated_at=booking.updated_at
+            )
+            bookings.append(booking_response)
         
         return bookings
     except Exception as e:
@@ -117,11 +147,13 @@ async def get_resort_booking(
     booking_id: int,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> Booking:
+) -> ResortBookingResponse:
     """Get a specific resort booking."""
     
     try:
-        stmt = select(Booking).where(
+        stmt = select(Booking, Resort).join(
+            Resort, Booking.resort_id == Resort.id
+        ).where(
             and_(
                 Booking.id == booking_id,
                 Booking.user_id == current_user.id,
@@ -130,18 +162,36 @@ async def get_resort_booking(
             )
         )
         result = await db.execute(stmt)
-        booking = result.scalar_one_or_none()
+        booking_with_resort = result.first()
         
-        if not booking:
+        if not booking_with_resort:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Resort booking not found"
             )
         
-        # Convert UUID to string for response
-        booking.uuid = str(booking.uuid)
+        booking, resort = booking_with_resort
         
-        return booking
+        # Create response with resort details
+        booking_response = ResortBookingResponse(
+            id=booking.id,
+            uuid=str(booking.uuid),
+            user_id=booking.user_id,
+            resort_id=booking.resort_id,
+            resort_name=resort.name,
+            resort_city=resort.city,
+            resort_country=resort.country,
+            check_in_date=booking.check_in_date,
+            check_out_date=booking.check_out_date,
+            number_of_guests=booking.number_of_guests,
+            special_requests=booking.special_requests,
+            total_amount=booking.total_amount,
+            status=booking.status,
+            created_at=booking.created_at,
+            updated_at=booking.updated_at
+        )
+        
+        return booking_response
     except HTTPException:
         raise  # Re-raise HTTP exceptions as-is
     except Exception as e:
@@ -157,7 +207,7 @@ async def update_resort_booking(
     booking_update: ResortBookingUpdate,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> Booking:
+) -> ResortBookingResponse:
     """Update a resort booking."""
     
     # Get existing booking
@@ -198,10 +248,31 @@ async def update_resort_booking(
     await db.commit()
     await db.refresh(booking)
     
-    # Convert UUID to string for response
-    booking.uuid = str(booking.uuid)
+    # Get resort info for response
+    resort_stmt = select(Resort).where(Resort.id == booking.resort_id)
+    resort_result = await db.execute(resort_stmt)
+    resort = resort_result.scalar_one_or_none()
     
-    return booking
+    # Create response with resort details
+    booking_response = ResortBookingResponse(
+        id=booking.id,
+        uuid=str(booking.uuid),
+        user_id=booking.user_id,
+        resort_id=booking.resort_id,
+        resort_name=resort.name if resort else "Unknown",
+        resort_city=resort.city if resort else "Unknown",
+        resort_country=resort.country if resort else "Unknown",
+        check_in_date=booking.check_in_date,
+        check_out_date=booking.check_out_date,
+        number_of_guests=booking.number_of_guests,
+        special_requests=booking.special_requests,
+        total_amount=booking.total_amount,
+        status=booking.status,
+        created_at=booking.created_at,
+        updated_at=booking.updated_at
+    )
+    
+    return booking_response
 
 
 @router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
