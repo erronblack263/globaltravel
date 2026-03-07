@@ -23,7 +23,7 @@ async def create_destination_booking(
     booking_data: DestinationBookingCreate,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> Booking:
+) -> DestinationBookingResponse:
     """Create a new destination booking."""
     
     # Validate destination exists and is active
@@ -60,17 +60,40 @@ async def create_destination_booking(
     await db.commit()
     await db.refresh(booking)
     
-    # Convert UUID to string for response
-    booking.uuid = str(booking.uuid)
+    # Get destination info for response
+    dest_stmt = select(Destination).where(Destination.id == booking.destination_id)
+    dest_result = await db.execute(dest_stmt)
+    destination = dest_result.scalar_one_or_none()
     
-    return booking
+    # Create response with destination details
+    booking_response = DestinationBookingResponse(
+        id=booking.id,
+        uuid=str(booking.uuid),
+        user_id=booking.user_id,
+        booking_type=booking.booking_type,
+        destination_id=booking.destination_id,
+        resort_id=booking.resort_id,
+        check_in_date=booking.check_in_date,
+        check_out_date=booking.check_out_date,
+        number_of_guests=booking.number_of_guests,
+        total_amount=booking.total_amount,
+        status=booking.status,
+        special_requests=booking.special_requests,
+        created_at=booking.created_at,
+        updated_at=booking.updated_at,
+        destination_name=destination.name if destination else "Unknown",
+        destination_city=destination.city if destination else "Unknown",
+        destination_country=destination.country if destination else "Unknown"
+    )
+    
+    return booking_response
 
 
 @router.get("/", response_model=List[DestinationBookingResponse])
 async def get_destination_bookings(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> List[Booking]:
+) -> List[DestinationBookingResponse]:
     """Get all destination bookings for current user."""
     
     try:
@@ -91,11 +114,27 @@ async def get_destination_bookings(
         bookings = []
         for booking, destination in bookings_with_destinations:
             booking.uuid = str(booking.uuid)
-            # Add destination details to booking
-            booking.destination_name = destination.name
-            booking.destination_city = destination.city
-            booking.destination_country = destination.country
-            bookings.append(booking)
+            # Create response with destination details
+            booking_response = DestinationBookingResponse(
+                id=booking.id,
+                uuid=booking.uuid,
+                user_id=booking.user_id,
+                booking_type=booking.booking_type,
+                destination_id=booking.destination_id,
+                resort_id=booking.resort_id,
+                check_in_date=booking.check_in_date,
+                check_out_date=booking.check_out_date,
+                number_of_guests=booking.number_of_guests,
+                total_amount=booking.total_amount,
+                status=booking.status,
+                special_requests=booking.special_requests,
+                created_at=booking.created_at,
+                updated_at=booking.updated_at,
+                destination_name=destination.name,
+                destination_city=destination.city,
+                destination_country=destination.country
+            )
+            bookings.append(booking_response)
         
         return bookings
     except Exception as e:
@@ -110,10 +149,12 @@ async def get_destination_booking(
     booking_id: int,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> Booking:
+) -> DestinationBookingResponse:
     """Get a specific destination booking."""
     
-    stmt = select(Booking).where(
+    stmt = select(Booking, Destination).join(
+        Destination, Booking.destination_id == Destination.id
+    ).where(
         and_(
             Booking.id == booking_id,
             Booking.user_id == current_user.id,
@@ -122,18 +163,38 @@ async def get_destination_booking(
         )
     )
     result = await db.execute(stmt)
-    booking = result.scalar_one_or_none()
+    booking_with_destination = result.first()
     
-    if not booking:
+    if not booking_with_destination:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Destination booking not found"
         )
     
-    # Convert UUID to string for response
-    booking.uuid = str(booking.uuid)
+    booking, destination = booking_with_destination
     
-    return booking
+    # Create response with destination details
+    booking_response = DestinationBookingResponse(
+        id=booking.id,
+        uuid=str(booking.uuid),
+        user_id=booking.user_id,
+        booking_type=booking.booking_type,
+        destination_id=booking.destination_id,
+        resort_id=booking.resort_id,
+        check_in_date=booking.check_in_date,
+        check_out_date=booking.check_out_date,
+        number_of_guests=booking.number_of_guests,
+        total_amount=booking.total_amount,
+        status=booking.status,
+        special_requests=booking.special_requests,
+        created_at=booking.created_at,
+        updated_at=booking.updated_at,
+        destination_name=destination.name,
+        destination_city=destination.city,
+        destination_country=destination.country
+    )
+    
+    return booking_response
 
 
 @router.put("/{booking_id}", response_model=DestinationBookingResponse)
@@ -142,7 +203,7 @@ async def update_destination_booking(
     booking_update: DestinationBookingUpdate,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
-) -> Booking:
+) -> DestinationBookingResponse:
     """Update a destination booking."""
     
     # Get existing booking
@@ -182,10 +243,33 @@ async def update_destination_booking(
     await db.commit()
     await db.refresh(booking)
     
-    # Convert UUID to string for response
-    booking.uuid = str(booking.uuid)
+    # Get destination info for response
+    dest_stmt = select(Destination).where(Destination.id == booking.destination_id)
+    dest_result = await db.execute(dest_stmt)
+    destination = dest_result.scalar_one_or_none()
     
-    return booking
+    # Create response with destination details
+    booking_response = DestinationBookingResponse(
+        id=booking.id,
+        uuid=str(booking.uuid),
+        user_id=booking.user_id,
+        booking_type=booking.booking_type,
+        destination_id=booking.destination_id,
+        resort_id=booking.resort_id,
+        check_in_date=booking.check_in_date,
+        check_out_date=booking.check_out_date,
+        number_of_guests=booking.number_of_guests,
+        total_amount=booking.total_amount,
+        status=booking.status,
+        special_requests=booking.special_requests,
+        created_at=booking.created_at,
+        updated_at=booking.updated_at,
+        destination_name=destination.name if destination else "Unknown",
+        destination_city=destination.city if destination else "Unknown",
+        destination_country=destination.country if destination else "Unknown"
+    )
+    
+    return booking_response
 
 
 @router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
