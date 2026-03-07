@@ -101,8 +101,8 @@ class PayPalService:
                     "landing_page": "BILLING",
                     "shipping_preference": "NO_SHIPPING",
                     "user_action": "PAY_NOW",
-                    "return_url": "http://127.0.0.1:8000/api/v1/payments/paypal/success",
-                    "cancel_url": "http://127.0.0.1:8000/api/v1/payments/paypal/cancel"
+                    "return_url": "http://localhost:8000/api/v1/payments/paypal/success",
+                    "cancel_url": "http://localhost:8000/api/v1/payments/paypal/cancel"
                 }
             }
             
@@ -226,10 +226,10 @@ class PayPalService:
             "base_url": self.get_base_url(),
             "test_mode": self.is_test_environment(),
             "test_accounts": {
-                "buyer": "personal-buyer@sandbox.com",
-                "password": "Test123456",
-                "seller": "business-seller@sandbox.com",
-                "password": "Test123456"
+                "buyer": "sb-y3aoh43903010@personal.example.com",
+                "password": "2^$uPE)x",
+                "seller": "sb-rzyz843928419@business.example.com",
+                "password": "2I!MwV><"
             },
             "test_cards": [
                 {
